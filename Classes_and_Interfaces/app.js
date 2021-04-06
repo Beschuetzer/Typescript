@@ -47,7 +47,7 @@ var Department = (function () {
         }
         (_a = this.employees).push.apply(_a, employees);
     };
-    Department.getFiscalYear = function () {
+    Department.prototype.getFiscalYear = function () {
         return Department.fiscalYear;
     };
     Department.fiscalYear = 2021;
@@ -95,5 +95,5 @@ it.addEmployees(e1, e2);
 it.describe();
 it.secret = 'my new password';
 console.log(it.secret);
-console.log(Department.getFiscalYear());
+console.log(it.getFiscalYear());
 //# sourceMappingURL=app.js.map
