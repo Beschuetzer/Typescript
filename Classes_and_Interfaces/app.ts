@@ -17,12 +17,13 @@ class Employee {
 	}
 }
 
-class Department {
+//abstract classes can not be instantiated (a class must be abstract if it contains an abstract method or property)
+abstract class Department {
 	//static properties are not accessible
 	static fiscalYear = 2021;
 
-	//public is the default
-	public name: string;
+	//public is the default for a property
+	name: string;
 
 	//private properties denote only accessible from inside the class in which they are defined (this is a ts thing as JS not aware of private props)
 	// private employees: Employee[] = [];
@@ -30,7 +31,7 @@ class Department {
 	//means available in classes that extend the class in which it is defined but still 'private'
 	protected employees: Employee[] = [];
 
-	constructor(name: string, location: string) {
+	constructor(name: string, public location: string) {
 		this.name = name;
 	}
 
@@ -47,6 +48,33 @@ class Department {
 	//creating a static method (accessed via Classname.methodName):
 	getFiscalYear() {
 		return Department.fiscalYear;
+	}
+
+	//defining an abstract method (how it should look), which forces each class that inherits this class to define a method called abstractMethodExample()
+	abstract abstractMethodExample(this: Department): void;
+}
+
+class AccountingDepartment extends Department {
+	//creating a singleton of AccountingDepartment (ensuring only ever one instance of AccountDepartment):
+	private static instance: AccountingDepartment;
+
+	//Removing ability to use 'new' to instantiate class by 'private'
+	private constructor(location: string) {
+		super('accounting', location);
+	}
+
+	//using a static instance creation method to create an instance (e.g. const accounting = AccountingDepartment.getInstance('2nd floor'))
+	static getInstance(location: string) {
+		//returning the current instance if it exists
+		if (this.instance) return this.instance;
+
+		//creating a new instance otherwise and storing it in this.instance
+		this.instance = new AccountingDepartment(location);
+		return this.instance;
+	}
+
+	abstractMethodExample() {
+		return this;
 	}
 }
 
@@ -77,12 +105,16 @@ class ITDepartment extends Department {
 			else this.employees.push(employee);
 		})
 	}
-}
 
+	abstractMethodExample() {
+		return this;
+	}
+}
 
 const e1 = new Employee('Adam', 29);
 const e2 = new Employee('Andrew', 28);
-const accounting = new Department('accounting', 'gym');
+const accounting = AccountingDepartment.getInstance('gym');
+const accounting2 = AccountingDepartment.getInstance('gym2');
 const it = new ITDepartment('office');
 
 accounting.addEmployees(e2, e1);
@@ -91,8 +123,11 @@ accounting.describe();
 it.addEmployees(e1, e2);
 it.describe();
 it.secret = 'my new password'
+
+
 console.log(it.secret)
-
 console.log(it.getFiscalYear())
-
+console.log(it.abstractMethodExample())
+console.log('accounting =', accounting);
+console.log('accounting2 =', accounting2);
 
