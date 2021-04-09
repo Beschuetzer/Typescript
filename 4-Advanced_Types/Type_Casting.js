@@ -1,9 +1,9 @@
 "use strict";
-var paragraph = document.querySelector('p');
-var paragraph2 = document.querySelector('#paragraph');
-var usingAs = document.querySelector('#paragraph');
-var usingBrackets = document.querySelector('#paragraph');
-var unsure = document.querySelector('#unsureAboutThisID');
+const paragraph = document.querySelector('p');
+const paragraph2 = document.querySelector('#paragraph');
+const usingAs = document.querySelector('#paragraph');
+const usingBrackets = document.querySelector('#paragraph');
+const unsure = document.querySelector('#unsureAboutThisID');
 if (unsure) {
     unsure.value = 'We casted then accessed the casted value!';
 }

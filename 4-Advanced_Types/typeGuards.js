@@ -3,7 +3,7 @@ function addWithTypeGuard(n1, n2, showResult, phrase) {
     if (typeof n1 !== 'number' || typeof n2 !== 'number') {
         throw new Error('Incorrect input!');
     }
-    var result = n1 + n2;
+    const result = n1 + n2;
     if (showResult) {
         console.log(phrase + result);
     }
@@ -19,27 +19,21 @@ function printEmployeeInformation(employee) {
         console.log('employee.startDate =', employee.startDate);
     }
 }
-var Car = (function () {
-    function Car() {
-    }
-    Car.prototype.drive = function () {
+class Car {
+    drive() {
         console.log('driving');
-    };
-    return Car;
-}());
-var Truck = (function () {
-    function Truck() {
     }
-    Truck.prototype.drive = function () {
+}
+class Truck {
+    drive() {
         console.log('driving a truck!');
-    };
-    Truck.prototype.loadCard = function () {
+    }
+    loadCard() {
         console.log('loading cargo');
-    };
-    return Truck;
-}());
-var v1 = new Car();
-var v2 = new Truck();
+    }
+}
+const v1 = new Car();
+const v2 = new Truck();
 function useVehicle(vehicle) {
     vehicle.drive();
     if (vehicle instanceof Truck) {

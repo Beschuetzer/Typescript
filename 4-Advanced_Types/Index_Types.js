@@ -1,5 +1,5 @@
 "use strict";
-var errorBag = {
+const errorBag = {
     1: 'One',
     id: 'TommyBoy',
 };
