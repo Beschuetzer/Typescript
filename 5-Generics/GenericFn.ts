@@ -29,7 +29,7 @@ const mergedObj = merge({name: 'Adam'}, {age: 30});
 const mergedObj2 = merge<{name: string}, {age: number}>({name: 'Adam'}, {age: 30});
 
 
-//Using types constraints (extend keyword) with generic types to tell typescript that those generic types must be of a certain type of types:
+//Using type constraints (extend keyword) with generic types to tell typescript that those generic types must be of a certain type of types:
 function mergeConstrained<T extends object, U extends object> (objA: T, objB: U) {
   return Object.assign(objA, objB);
 }
@@ -49,4 +49,4 @@ function countAndDescribe<T extends Lengthy> (element: T) {
   return `Got ${elementCount} ${elementCount === 1 ? 'element' : 'elements'}`;
 }
 
-console.log(countAndDescribe({'Test': "test"}));
+console.log(countAndDescribe({"length": 22}));
