@@ -1,3 +1,5 @@
+
+
 interface Human {
   name: string;
   age: number;
@@ -69,8 +71,9 @@ console.log('numberStorage =', numberStorage);
 
 const userOne = new User('Adam', 30);
 const userTwo = new User('Tom', 31);
-const userThree = new User('Jonn', 33);
-const userFour = new User('Jonn', 33);
+const userThree = new User('John', 33);
+const userFour = new User('John', 33);
+
 const objStorage = new DataStorage<object>();
 objStorage.addItem(userOne);
 objStorage.addItem(userTwo);

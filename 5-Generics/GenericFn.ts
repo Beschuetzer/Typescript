@@ -1,4 +1,5 @@
 //Generic types allow you to specify more type information when dealing with complex classes allowing you to access methods for those types inside ts.
+//NOTE: Generics help you create data structures that work together or wrap values of a broad variety of types (e.g. an array that can hold any type of data).
 
 //Arrays are a generic type
 const names: Array<Number | String> = [];  //this is the same as c# generics
