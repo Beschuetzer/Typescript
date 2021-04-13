@@ -23,4 +23,3 @@ function createCourseGoal(title: string, description: string, date: Date): Cours
 
   //Readonly:
   const namesReadOnly: Readonly<string[]> = ['Anna','TOm'];
-  namesReadOnly.push('andie')

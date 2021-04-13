@@ -7,5 +7,4 @@ function createCourseGoal(title, description, date) {
     return courseGoal;
 }
 const namesReadOnly = ['Anna', 'TOm'];
-namesReadOnly.push('andie');
 //# sourceMappingURL=Generic_Utility_Types.js.map
