@@ -12,7 +12,6 @@ const registeredValidators: ValidatorConfig = {};
 //storing the validatable properties for each property in registeredValidators
 function setRegisteredValidator(target: any, propName: string, validatorName: string) {
   let validator = registeredValidators[target.constructor.name];
-  let currentRegisteredValidators: any = {};
   let validatorsForCurrentProp: string[] = [];
 
   if (validator) {
@@ -20,20 +19,21 @@ function setRegisteredValidator(target: any, propName: string, validatorName: st
     for (let i = 0; i < toValidate.length; i++) {
       const currentPropName = toValidate[i];
       const decoratorNames = validator[currentPropName];
-      currentRegisteredValidators[currentPropName] = decoratorNames;
 
       if (propName === currentPropName) {
         validatorsForCurrentProp.push(...decoratorNames);
       }
     }
   }
-  
+
+  const currentRegisteredValidators = registeredValidators[target.constructor.name];
   registeredValidators[target.constructor.name] = {
       //propName is the property name of the decorator
       //NOTE: we would want to get all of the previously registered validator properties rather than just assign 'required' (i.e. [...previousProps, 'required'] rather than below)
       ...currentRegisteredValidators,
       [propName]: [...validatorsForCurrentProp, validatorName],
   }
+  debugger
 }
 
 //A decorator signifying a property is required
