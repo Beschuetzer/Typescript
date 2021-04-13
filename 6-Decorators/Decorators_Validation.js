@@ -21,7 +21,6 @@ function setRegisteredValidator(target, propName, validatorName) {
     }
     const currentRegisteredValidators = registeredValidators[target.constructor.name];
     registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, currentRegisteredValidators), { [propName]: [...validatorsForCurrentProp, validatorName] });
-    debugger;
 }
 function Required(target, propName) {
     setRegisteredValidator(target, propName, 'required');

@@ -1,3 +1,8 @@
+//NOTe: this is naive example of what the npm package 'class validator' does with decorators
+
+//NOTE: Checkout https://www.udemy.com/course/understanding-typescript/learn/lecture/16935748#overview to view nest.js and typescript validator packages and frameworks that use decorators
+
+
 //NOTE: the interface, validate, and decorator code would be stored separately from the class declaration
 //Creating an interface called ValidatorConfig which is used to setup the validators
 interface ValidatorConfig {
@@ -33,7 +38,6 @@ function setRegisteredValidator(target: any, propName: string, validatorName: st
       ...currentRegisteredValidators,
       [propName]: [...validatorsForCurrentProp, validatorName],
   }
-  debugger
 }
 
 //A decorator signifying a property is required
