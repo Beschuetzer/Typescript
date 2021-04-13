@@ -1,3 +1,4 @@
+//NOTE: the interface, validate, and decorator code would be stored separately from the class declaration
 //Creating an interface called ValidatorConfig which is used to setup the validators
 interface ValidatorConfig {
   [property: string]: {
@@ -5,37 +6,11 @@ interface ValidatorConfig {
   }
 }
 
+//Create a new instance of ValidatorConfig
 const registeredValidators: ValidatorConfig = {};
 
-//A decorator signifying a property is required
-function Required(target: any, propName: string) {
-  //storing the validatableProperties for each property in registeredValidators
-  let validator = registeredValidators[target.constructor.name];
-  let currentRegisteredValidators: any = {};
-  let validatorsForCurrentProp: string[] = []
-
-  if (validator) {
-    const toValidate = Object.keys(validator);
-    for (let i = 0; i < toValidate.length; i++) {
-      const currentPropName = toValidate[i];
-      const decoratorNames = validator[currentPropName];
-      currentRegisteredValidators[currentPropName] = decoratorNames;
-
-      if (propName === currentPropName) {
-        validatorsForCurrentProp.push(...decoratorNames);
-      }
-    }
-  }
-
-  registeredValidators[target.constructor.name] = {
-      //propName is the property name of the decorator
-      //NOTE: we would want to get all of the previously registered validator properties rather than just assign 'required' (i.e. [...previousProps, 'required'] rather than below)
-      ...currentRegisteredValidators,
-      [propName]: [...validatorsForCurrentProp, 'required'],
-  }
-}
-
-function Positive(target: any, propName: string) {
+//storing the validatable properties for each property in registeredValidators
+function setRegisteredValidator(target: any, propName: string, validatorName: string) {
   let validator = registeredValidators[target.constructor.name];
   let currentRegisteredValidators: any = {};
   let validatorsForCurrentProp: string[] = [];
@@ -52,16 +27,26 @@ function Positive(target: any, propName: string) {
       }
     }
   }
-
+  
   registeredValidators[target.constructor.name] = {
       //propName is the property name of the decorator
       //NOTE: we would want to get all of the previously registered validator properties rather than just assign 'required' (i.e. [...previousProps, 'required'] rather than below)
       ...currentRegisteredValidators,
-      [propName]: [...validatorsForCurrentProp, 'positive'],
+      [propName]: [...validatorsForCurrentProp, validatorName],
   }
 }
 
-//NOTE: this function is called everytime a new instance is created for validating it based on the decorators present in the class blueprint
+//A decorator signifying a property is required
+function Required(target: any, propName: string) {
+  setRegisteredValidator(target, propName, 'required');
+  
+}
+
+function Positive(target: any, propName: string) {
+  setRegisteredValidator(target, propName, 'positive');
+}
+
+//NOTE: this function is called every time a new instance is created for validating it based on the decorators present in the class blueprint
 function validate(obj: any) {
   //goes through each validator and runs logic based on those validators
   const objValidatorConfig = registeredValidators[obj.constructor.name];
@@ -115,8 +100,9 @@ function handleSubmit (e) {
     console.log('invalid------------------------------------------------');
     return;
   }
-  console.log('valid------------------------------------------------');
+  console.log('valid do something with new course------------------------------------------------');
 }
+
 
 const buttonValidation = document.getElementById('validation-submit') as HTMLButtonElement;
 buttonValidation.addEventListener('click', handleSubmit);

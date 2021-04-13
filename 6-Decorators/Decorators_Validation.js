@@ -6,7 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 const registeredValidators = {};
-function Required(target, propName) {
+function setRegisteredValidator(target, propName, validatorName) {
     let validator = registeredValidators[target.constructor.name];
     let currentRegisteredValidators = {};
     let validatorsForCurrentProp = [];
@@ -21,24 +21,13 @@ function Required(target, propName) {
             }
         }
     }
-    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, currentRegisteredValidators), { [propName]: [...validatorsForCurrentProp, 'required'] });
+    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, currentRegisteredValidators), { [propName]: [...validatorsForCurrentProp, validatorName] });
+}
+function Required(target, propName) {
+    setRegisteredValidator(target, propName, 'required');
 }
 function Positive(target, propName) {
-    let validator = registeredValidators[target.constructor.name];
-    let currentRegisteredValidators = {};
-    let validatorsForCurrentProp = [];
-    if (validator) {
-        const toValidate = Object.keys(validator);
-        for (let i = 0; i < toValidate.length; i++) {
-            const currentPropName = toValidate[i];
-            const decoratorNames = validator[currentPropName];
-            currentRegisteredValidators[currentPropName] = decoratorNames;
-            if (propName === currentPropName) {
-                validatorsForCurrentProp.push(...decoratorNames);
-            }
-        }
-    }
-    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, currentRegisteredValidators), { [propName]: [...validatorsForCurrentProp, 'positive'] });
+    setRegisteredValidator(target, propName, 'positive');
 }
 function validate(obj) {
     const objValidatorConfig = registeredValidators[obj.constructor.name];
@@ -87,7 +76,7 @@ function handleSubmit(e) {
         console.log('invalid------------------------------------------------');
         return;
     }
-    console.log('valid------------------------------------------------');
+    console.log('valid do something with new course------------------------------------------------');
 }
 const buttonValidation = document.getElementById('validation-submit');
 buttonValidation.addEventListener('click', handleSubmit);
