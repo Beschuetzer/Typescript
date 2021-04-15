@@ -1,3 +1,50 @@
+interface Validatable {
+  value: string | number;
+  inputName: string;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+interface Error {
+  error: string | null;
+}
+
+function validate (validatableInput: Validatable): Error {
+  let isValid = {error: null} as Error;
+  if (validatableInput.required) {
+    if (validatableInput.value.toString().trim().length === 0) return {error: `${validatableInput.inputName} is required.`} as Error;
+  }
+  if (
+    validatableInput.minLength != null && 
+    typeof validatableInput.value === 'string'
+  ) {
+    if (validatableInput.value.trim().length < validatableInput.minLength) return {error: `${validatableInput.value} is shorter than ${validatableInput.minLength} in ${validatableInput.inputName}!`} as Error;
+  }
+  if (
+    validatableInput.maxLength != null && 
+    typeof validatableInput.value === 'string'
+  ) {
+    if (validatableInput.value.trim().length > validatableInput.maxLength) return {error: `${validatableInput.value} is longer than ${validatableInput.maxLength} in ${validatableInput.inputName}!`} as Error;
+  }
+  if (
+    validatableInput.min != null && 
+    typeof validatableInput.value === 'number'
+  ) {
+    if (validatableInput.value < validatableInput.min) return {error: `${validatableInput.value} is shorter than ${validatableInput.min} in ${validatableInput.inputName}!`} as Error;
+  }
+  if (
+    validatableInput.max != null && 
+    typeof validatableInput.value === 'number'
+  ) {
+    if (validatableInput.value > validatableInput.max) return {error: `${validatableInput.value} is longer than ${validatableInput.max} in ${validatableInput.inputName}!`} as Error;
+    }
+  return isValid;
+}
+
+
 //Auto Bind Decorator
 function autoBind(target: any, methodName: string | Symbol, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
@@ -42,15 +89,48 @@ class ProjectInput {
     const description = this.descriptionElement.value;
     const people = this.peopleInputElement.value;
 
-    const titleIsValid = title.trim().length !== 0;
-    const descriptionIsValid = description.trim().length !== 0;
-    const peopleIsValid = people.trim().length !== 0;
-
-    if (!titleIsValid || !descriptionIsValid || !peopleIsValid) {
-      alert('Invalid Something!');
-      return;
+    const titleValidatable: Validatable = {
+      value: title,
+      inputName: 'Title',
+      required: true,
+      minLength: 5,
+      maxLength: 10,
     }
-    else {
+
+    const descriptionValidatable: Validatable = {
+      value: description,
+      inputName: 'Description',
+      required: true,
+      minLength: 5,
+      maxLength: 10,
+    }
+
+    const peopleValidatable: Validatable = {
+      value: people,
+      inputName: 'People',
+      required: true,
+      min: 1,
+      max: 8,
+    }
+
+    const titleIsValid = validate(titleValidatable);
+    const descriptionIsValid = validate(descriptionValidatable);
+    const peopleIsValid = validate(peopleValidatable);
+
+    let shouldSumbit = true;
+    if (titleIsValid.error) {
+      alert(titleIsValid.error);
+      shouldSumbit = false;
+    }
+    if (descriptionIsValid.error) {
+      alert(descriptionIsValid.error);
+      shouldSumbit = false;
+    }
+    if (peopleIsValid.error) {
+      alert(peopleIsValid.error);
+      shouldSumbit = false;
+    }
+    if (shouldSumbit) {
       return [title, description, +people];
     }
   }
