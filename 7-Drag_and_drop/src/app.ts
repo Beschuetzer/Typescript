@@ -1,7 +1,21 @@
+//Project Type
+enum ProjectStatus {Active, Finished};
+class Project {
+    id: string;
+    constructor (
+      public title: string, 
+      public description: string, 
+      public people: number, 
+      public status: ProjectStatus,
+    ) {
+      this.id = Math.random().toString();
+    }
+}
+
 //Project State Management
 class ProjectState {
-  private listeners: any[] = [];
-  private projects: any[] = [];
+  private listeners: Function[] = [];
+  private projects: Project[] = [];
   private static instance: ProjectState;
 
   private constructor() {
@@ -15,18 +29,12 @@ class ProjectState {
     return this.instance;
   }
 
-  addListener(listenerFn: Function) {
+  addListener(listenerFn: Listener) {
     this.listeners.push(listenerFn);
   }
 
   addProject(title: string, description: string, numOfPeople: number) {
-    const newProject = {
-      id:  Math.random().toString(),
-      title: title,
-      description,
-      people: numOfPeople,
-    };
-    this.projects.push(newProject);
+    this.projects.push(new Project(title, description, numOfPeople, ProjectStatus.Active));
     for (const listenerFn of this.listeners) {
       listenerFn(this.projects.slice());
     }
@@ -94,12 +102,15 @@ function autoBind(target: any, methodName: string | Symbol, descriptor: Property
   return adjustedDescriptor;
 }
 
+//Creating a function type (defining what a function signature must be)
+type Listener = (items: Project[]) => void;
+
 //ProjectList Class
 class ProjectList {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
   element: HTMLElement;
-  assignedProjects: any[] = [];
+  assignedProjects: Project[] = [];
 
   constructor(private type: 'active' | 'finished') {
     this.templateElement = document.querySelector('#project-list') as HTMLTemplateElement;
@@ -108,7 +119,7 @@ class ProjectList {
     this.element = importedNode.firstElementChild as HTMLElement;
     this.element.id = `${this.type}-projects`;
 
-    projectState.addListener((projects: any[]) => {
+    projectState.addListener((projects: Project[]) => {
       this.assignedProjects = projects;
       this.renderProjects();
     });
@@ -173,7 +184,7 @@ class ProjectInput {
       inputName: 'Title',
       required: true,
       minLength: 5,
-      maxLength: 10,
+      maxLength: 20,
     }
 
     const descriptionValidatable: Validatable = {
@@ -181,7 +192,7 @@ class ProjectInput {
       inputName: 'Description',
       required: true,
       minLength: 5,
-      maxLength: 10,
+      maxLength: 100,
     }
 
     const peopleValidatable: Validatable = {
@@ -189,7 +200,7 @@ class ProjectInput {
       inputName: 'People',
       required: true,
       min: 1,
-      max: 8,
+      max: 100,
     }
 
     const titleIsValid = validate(titleValidatable);
