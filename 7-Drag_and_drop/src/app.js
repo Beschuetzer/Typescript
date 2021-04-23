@@ -121,7 +121,14 @@ class ProjectItem extends Component {
             personOrPeopleString = 'person';
         return `${numberOfPeople} ${personOrPeopleString} ${suffix}`;
     }
+    dragStartHandler(event) {
+        console.log('event =', event);
+    }
+    dragEndHandler(_) {
+    }
     configure() {
+        this.element.addEventListener('dragstart', this.dragStartHandler);
+        this.element.addEventListener('dragend', this.dragEndHandler);
     }
     renderContent() {
         this.element.querySelector('h2').textContent = this.project.title;
@@ -129,6 +136,12 @@ class ProjectItem extends Component {
         this.element.querySelector('p').textContent = this.project.description;
     }
 }
+__decorate([
+    autoBind
+], ProjectItem.prototype, "dragStartHandler", null);
+__decorate([
+    autoBind
+], ProjectItem.prototype, "dragEndHandler", null);
 class ProjectList extends Component {
     constructor(type) {
         super('project-list', 'app', InsertLocation.end, `${type}-projects`);
@@ -137,10 +150,19 @@ class ProjectList extends Component {
         this.configure();
         this.renderContent();
     }
+    dragLeaveHandler(event) {
+        this.element.classList.remove('droppable');
+    }
+    dropHandler(event) {
+    }
+    dragOverHandler(event) {
+        const listEl = this.element.querySelector('ul');
+        listEl.classList.add('droppable');
+    }
     renderContent() {
         const listId = `${this.type}-projects-list`;
         this.element.querySelector('ul').id = listId;
-        this.element.querySelector('h2').textContent = this.type.toUpperCase() + 'PROJECTS';
+        this.element.querySelector('h2').textContent = this.type.toUpperCase() + ' PROJECTS';
     }
     configure() {
         projectState.addListener((projects) => {
@@ -152,6 +174,8 @@ class ProjectList extends Component {
             this.assignedProjects = relevantProjects;
             this.renderProjects();
         });
+        this.element.addEventListener('dragover', this.dragOverHandler);
+        this.element.addEventListener('dragexit', this.dragLeaveHandler.bind(this));
     }
     renderProjects() {
         const listEl = document.getElementById(`${this.type}-projects-list`);
@@ -161,6 +185,9 @@ class ProjectList extends Component {
         }
     }
 }
+__decorate([
+    autoBind
+], ProjectList.prototype, "dragOverHandler", null);
 class ProjectInput extends Component {
     constructor() {
         super('project-input', 'app', InsertLocation.start, 'user-input');
