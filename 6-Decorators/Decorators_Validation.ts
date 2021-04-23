@@ -3,7 +3,7 @@
 //NOTE: Checkout https://www.udemy.com/course/understanding-typescript/learn/lecture/16935748#overview to view nest.js and typescript validator packages and frameworks that use decorators
 
 
-//NOTE: the interface, validate, and decorator code would be stored separately from the class declaration
+//NOTE: the interface, validate2, and decorator code would be stored separately from the class declaration
 //Creating an interface called ValidatorConfig which is used to setup the validators
 interface ValidatorConfig {
   [property: string]: {
@@ -20,9 +20,9 @@ function setRegisteredValidator(target: any, propName: string, validatorName: st
   let validatorsForCurrentProp: string[] = [];
 
   if (validator) {
-    const toValidate = Object.keys(validator);
-    for (let i = 0; i < toValidate.length; i++) {
-      const currentPropName = toValidate[i];
+    const toValidate2 = Object.keys(validator);
+    for (let i = 0; i < toValidate2.length; i++) {
+      const currentPropName = toValidate2[i];
       const decoratorNames = validator[currentPropName];
 
       if (propName === currentPropName) {
@@ -51,7 +51,7 @@ function Positive(target: any, propName: string) {
 }
 
 //NOTE: this function is called every time a new instance is created for validating it based on the decorators present in the class blueprint
-function validate(obj: any) {
+function validate2(obj: any) {
   //goes through each validator and runs logic based on those validators
   const objValidatorConfig = registeredValidators[obj.constructor.name];
   if (!objValidatorConfig) return true;
@@ -95,12 +95,12 @@ class Course {
   }
 }
 
-function handleSubmit (e) { 
+function handleSubmit (e: Event) { 
   e.preventDefault();
   const price = document.querySelector("#price") as HTMLInputElement;
   const title = document.querySelector("#title") as HTMLInputElement;
   const course1 = new Course(title.value, +price.value, 1.075);
-  if (!validate(course1)) {
+  if (!validate2(course1)) {
     console.log('invalid------------------------------------------------');
     return;
   }

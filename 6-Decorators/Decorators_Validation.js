@@ -10,9 +10,9 @@ function setRegisteredValidator(target, propName, validatorName) {
     let validator = registeredValidators[target.constructor.name];
     let validatorsForCurrentProp = [];
     if (validator) {
-        const toValidate = Object.keys(validator);
-        for (let i = 0; i < toValidate.length; i++) {
-            const currentPropName = toValidate[i];
+        const toValidate2 = Object.keys(validator);
+        for (let i = 0; i < toValidate2.length; i++) {
+            const currentPropName = toValidate2[i];
             const decoratorNames = validator[currentPropName];
             if (propName === currentPropName) {
                 validatorsForCurrentProp.push(...decoratorNames);
@@ -28,7 +28,7 @@ function Required(target, propName) {
 function Positive(target, propName) {
     setRegisteredValidator(target, propName, 'positive');
 }
-function validate(obj) {
+function validate2(obj) {
     const objValidatorConfig = registeredValidators[obj.constructor.name];
     if (!objValidatorConfig)
         return true;
@@ -71,7 +71,7 @@ function handleSubmit(e) {
     const price = document.querySelector("#price");
     const title = document.querySelector("#title");
     const course1 = new Course(title.value, +price.value, 1.075);
-    if (!validate(course1)) {
+    if (!validate2(course1)) {
         console.log('invalid------------------------------------------------');
         return;
     }
