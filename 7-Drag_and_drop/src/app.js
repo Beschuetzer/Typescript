@@ -105,6 +105,30 @@ class Component {
         this.hostElement.insertAdjacentElement(insertAtLocation, this.element);
     }
 }
+class ProjectItem extends Component {
+    constructor(hostId, project) {
+        super('single-project', hostId, InsertLocation.end, project.id);
+        this.hostId = hostId;
+        this.project = project;
+        this.configure();
+        this.renderContent();
+    }
+    get personsMsg() {
+        const numberOfPeople = this.project.people;
+        const suffix = 'currently assigned.';
+        let personOrPeopleString = 'people';
+        if (this.project.people === 1)
+            personOrPeopleString = 'person';
+        return `${numberOfPeople} ${personOrPeopleString} ${suffix}`;
+    }
+    configure() {
+    }
+    renderContent() {
+        this.element.querySelector('h2').textContent = this.project.title;
+        this.element.querySelector('h3').textContent = this.personsMsg;
+        this.element.querySelector('p').textContent = this.project.description;
+    }
+}
 class ProjectList extends Component {
     constructor(type) {
         super('project-list', 'app', InsertLocation.end, `${type}-projects`);
@@ -133,9 +157,7 @@ class ProjectList extends Component {
         const listEl = document.getElementById(`${this.type}-projects-list`);
         listEl.innerHTML = '';
         for (const projectItem of this.assignedProjects) {
-            const listItem = document.createElement('li');
-            listItem.textContent = projectItem.title;
-            listEl.appendChild(listItem);
+            new ProjectItem(this.element.querySelector('ul').id, projectItem);
         }
     }
 }

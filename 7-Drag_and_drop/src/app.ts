@@ -137,6 +137,34 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   abstract renderContent(): void;
 }
 
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement > {
+  
+  get personsMsg(): string {
+    const numberOfPeople = this.project.people;
+    const suffix = 'currently assigned.';
+    let personOrPeopleString = 'people';
+
+    if (this.project.people === 1) personOrPeopleString = 'person';
+    return `${numberOfPeople} ${personOrPeopleString} ${suffix}`;
+  }
+
+  constructor(private hostId: string, private project: Project) {
+    super('single-project', hostId, InsertLocation.end, project.id);
+    this.configure();
+    this.renderContent();
+  }
+
+  configure() {
+
+  }
+
+  renderContent() {
+    (this.element.querySelector('h2') as HTMLElement).textContent = this.project.title;
+    (this.element.querySelector('h3') as HTMLElement).textContent = this.personsMsg;
+    (this.element.querySelector('p') as HTMLElement).textContent = this.project.description;
+  }
+}
+
 //ProjectList Class
 class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   assignedProjects: Project[] = [];
@@ -169,9 +197,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     const listEl = document.getElementById(`${this.type}-projects-list`) as HTMLUListElement;
     listEl.innerHTML = '';
     for (const projectItem of this.assignedProjects) {
-      const listItem = document.createElement('li');
-      listItem.textContent = projectItem.title;
-      listEl.appendChild(listItem);
+      new ProjectItem((this.element.querySelector('ul') as HTMLElement).id, projectItem);
     }
   }
 }
