@@ -86,6 +86,17 @@ class ProjectState extends State {
     }
     addProject(title, description, numOfPeople) {
         this.projects.push(new Project(title, description, numOfPeople, ProjectStatus.Active));
+        this.updateListeners();
+    }
+    moveProject(id, newStatus) {
+        const projectToMove = this.projects.find(project => project.id === id);
+        if (projectToMove && newStatus !== projectToMove.status)
+            projectToMove.status = newStatus;
+        else
+            console.log('error moving project....');
+        this.updateListeners();
+    }
+    updateListeners() {
         for (const listenerFn of this.listeners) {
             listenerFn(this.projects.slice());
         }
@@ -122,7 +133,8 @@ class ProjectItem extends Component {
         return `${numberOfPeople} ${personOrPeopleString} ${suffix}`;
     }
     dragStartHandler(event) {
-        console.log('event =', event);
+        event.dataTransfer.setData('text/plain', this.project.id);
+        event.dataTransfer.effectAllowed = 'move';
     }
     dragEndHandler(_) {
     }
@@ -151,13 +163,18 @@ class ProjectList extends Component {
         this.renderContent();
     }
     dragLeaveHandler(event) {
-        this.element.classList.remove('droppable');
+        const listEl = this.element.querySelector('ul');
+        listEl.classList.remove('droppable');
     }
     dropHandler(event) {
+        projectState.moveProject(event.dataTransfer.getData('text/plain'), this.type === 'active' ? ProjectStatus.Active : ProjectStatus.Finished);
     }
     dragOverHandler(event) {
-        const listEl = this.element.querySelector('ul');
-        listEl.classList.add('droppable');
+        if (event.dataTransfer && event.dataTransfer.types[0] === 'text/plain') {
+            event.preventDefault();
+            const listEl = this.element.querySelector('ul');
+            listEl.classList.add('droppable');
+        }
     }
     renderContent() {
         const listId = `${this.type}-projects-list`;
@@ -174,8 +191,9 @@ class ProjectList extends Component {
             this.assignedProjects = relevantProjects;
             this.renderProjects();
         });
-        this.element.addEventListener('dragover', this.dragOverHandler);
-        this.element.addEventListener('dragexit', this.dragLeaveHandler.bind(this));
+        this.element.addEventListener('dragover', this.dragOverHandler.bind(this));
+        this.element.addEventListener('dragleave', this.dragLeaveHandler.bind(this));
+        this.element.addEventListener('drop', this.dropHandler.bind(this));
     }
     renderProjects() {
         const listEl = document.getElementById(`${this.type}-projects-list`);
@@ -185,9 +203,6 @@ class ProjectList extends Component {
         }
     }
 }
-__decorate([
-    autoBind
-], ProjectList.prototype, "dragOverHandler", null);
 class ProjectInput extends Component {
     constructor() {
         super('project-input', 'app', InsertLocation.start, 'user-input');

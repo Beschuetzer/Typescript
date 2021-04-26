@@ -75,8 +75,6 @@ function autoBind(target: any, methodName: string | Symbol, descriptor: Property
   return adjustedDescriptor;
 }
 
-
-
 class Project {
   id: string;
   constructor (
@@ -115,6 +113,18 @@ class ProjectState extends State<Project> {
 
   addProject(title: string, description: string, numOfPeople: number) {
     this.projects.push(new Project(title, description, numOfPeople, ProjectStatus.Active));
+    this.updateListeners();
+  }
+
+  moveProject(id: string, newStatus: ProjectStatus) {
+    const projectToMove = this.projects.find(project => project.id === id);
+    if (projectToMove && newStatus !== projectToMove.status) projectToMove.status = newStatus;
+    else console.log('error moving project....')
+    this.updateListeners();
+  }
+
+  //tells components to re-render
+  private updateListeners() {
     for (const listenerFn of this.listeners) {
       listenerFn(this.projects.slice());
     }
@@ -169,7 +179,10 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements 
 
   @autoBind
   dragStartHandler(event: DragEvent) {
-    console.log('event =', event);
+    //the 'text/plain' is just a string id for setting and retrieving said data in the drop handler on the target
+    event.dataTransfer!.setData('text/plain', this.project.id);
+    //Allows the cursor the have a different cursor (options are copy and others)
+    event.dataTransfer!.effectAllowed = 'move'
   }
 
   @autoBind
@@ -201,18 +214,23 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Drag
   }
 
   dragLeaveHandler (event: DragEvent) {
-    this.element.classList.remove('droppable');
-
+    const listEl = this.element.querySelector('ul')!;
+    listEl.classList.remove('droppable');
   }
 
   dropHandler(event: DragEvent) {
-
+    projectState.moveProject(event.dataTransfer!.getData('text/plain'), this.type === 'active' ? ProjectStatus.Active : ProjectStatus.Finished);
   }
 
-  @autoBind
   dragOverHandler(event: DragEvent) {
-    const listEl = this.element.querySelector('ul')!;
-    listEl.classList.add('droppable');
+    //checking that the data can be transferred here
+    if (event.dataTransfer && event.dataTransfer.types[0] === 'text/plain'){
+      //NOTE: IN JS IT IS NECESSARY TO CALL EVENT.PREVENTDEFAULT() IN THE DRAGOVER HANDLER IN ORDER TO HAVE THE DROP HANDLER TRIGGER
+      //BASICALLY JS DEFAULT BEHAVIOR IS TO PREVENT DRAG-AND-DROP
+      event.preventDefault();
+      const listEl = this.element.querySelector('ul')!;
+      listEl.classList.add('droppable');
+    }
   }
 
   renderContent() {
@@ -231,8 +249,9 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Drag
       this.renderProjects();
     });
 
-    this.element.addEventListener('dragover', this.dragOverHandler);
-    this.element.addEventListener('dragexit', this.dragLeaveHandler.bind(this));
+    this.element.addEventListener('dragover', this.dragOverHandler.bind(this));
+    this.element.addEventListener('dragleave', this.dragLeaveHandler.bind(this));
+    this.element.addEventListener('drop', this.dropHandler.bind(this));
   }
 
   private renderProjects() {  
