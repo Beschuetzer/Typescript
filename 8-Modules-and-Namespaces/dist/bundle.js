@@ -7,29 +7,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 var App;
 (function (App) {
-    class Project {
-        constructor(title, description, people, status) {
-            this.title = title;
-            this.description = description;
-            this.people = people;
-            this.status = status;
-            this.id = Math.random().toString();
+    class Component {
+        constructor(templateId, hostElementId, insertAtLocation, newElementId) {
+            this.templateElement = document.getElementById(templateId);
+            this.hostElement = document.getElementById(hostElementId);
+            const importedNode = document.importNode(this.templateElement.content, true);
+            this.element = importedNode.firstElementChild;
+            if (newElementId)
+                this.element.id = newElementId;
+            this.attach(insertAtLocation);
+        }
+        attach(insertAtLocation) {
+            this.hostElement.insertAdjacentElement(insertAtLocation, this.element);
         }
     }
-    App.Project = Project;
-    //Project Type
-    let ProjectStatus;
-    (function (ProjectStatus) {
-        ProjectStatus[ProjectStatus["Active"] = 0] = "Active";
-        ProjectStatus[ProjectStatus["Finished"] = 1] = "Finished";
-    })(ProjectStatus = App.ProjectStatus || (App.ProjectStatus = {}));
-    ;
-    let InsertLocation;
-    (function (InsertLocation) {
-        InsertLocation["start"] = "afterbegin";
-        InsertLocation["end"] = "beforeend";
-    })(InsertLocation = App.InsertLocation || (App.InsertLocation = {}));
-    ;
+    App.Component = Component;
 })(App || (App = {}));
 var App;
 (function (App) {
@@ -41,6 +33,7 @@ var App;
             this.listeners.push(listenerFn);
         }
     }
+    App.State = State;
     //Project State Management
     class ProjectState extends State {
         constructor() {
@@ -75,72 +68,8 @@ var App;
     App.ProjectState = ProjectState;
     App.projectState = ProjectState.getInstance();
 })(App || (App = {}));
-var App;
-(function (App) {
-    function validate(validatableInput) {
-        let isValid = { error: null };
-        if (validatableInput.required) {
-            if (validatableInput.value.toString().trim().length === 0)
-                return { error: `${validatableInput.inputName} is required.` };
-        }
-        if (validatableInput.minLength != null &&
-            typeof validatableInput.value === 'string') {
-            if (validatableInput.value.trim().length < validatableInput.minLength)
-                return { error: `${validatableInput.value} is shorter than ${validatableInput.minLength} in ${validatableInput.inputName}!` };
-        }
-        if (validatableInput.maxLength != null &&
-            typeof validatableInput.value === 'string') {
-            if (validatableInput.value.trim().length > validatableInput.maxLength)
-                return { error: `${validatableInput.value} is longer than ${validatableInput.maxLength} in ${validatableInput.inputName}!` };
-        }
-        if (validatableInput.min != null &&
-            typeof validatableInput.value === 'number') {
-            if (validatableInput.value < validatableInput.min)
-                return { error: `${validatableInput.value} is shorter than ${validatableInput.min} in ${validatableInput.inputName}!` };
-        }
-        if (validatableInput.max != null &&
-            typeof validatableInput.value === 'number') {
-            if (validatableInput.value > validatableInput.max)
-                return { error: `${validatableInput.value} is longer than ${validatableInput.max} in ${validatableInput.inputName}!` };
-        }
-        return isValid;
-    }
-    App.validate = validate;
-})(App || (App = {}));
-var App;
-(function (App) {
-    function autoBind(target, methodName, descriptor) {
-        const originalMethod = descriptor.value;
-        const adjustedDescriptor = {
-            configurable: true,
-            get() {
-                const boundFn = originalMethod.bind(this);
-                return boundFn;
-            }
-        };
-        return adjustedDescriptor;
-    }
-    App.autoBind = autoBind;
-})(App || (App = {}));
-var App;
-(function (App) {
-    class Component {
-        constructor(templateId, hostElementId, insertAtLocation, newElementId) {
-            this.templateElement = document.getElementById(templateId);
-            this.hostElement = document.getElementById(hostElementId);
-            const importedNode = document.importNode(this.templateElement.content, true);
-            this.element = importedNode.firstElementChild;
-            if (newElementId)
-                this.element.id = newElementId;
-            this.attach(insertAtLocation);
-        }
-        attach(insertAtLocation) {
-            this.hostElement.insertAdjacentElement(insertAtLocation, this.element);
-        }
-    }
-    App.Component = Component;
-})(App || (App = {}));
 /// <reference path='base-component.ts'/>
+/// <reference path="../state/project-state.ts"/>
 var App;
 (function (App) {
     class ProjectList extends App.Component {
@@ -197,52 +126,83 @@ var App;
     }
     App.ProjectList = ProjectList;
 })(App || (App = {}));
-/// <reference path="base-component.ts"/>
 var App;
 (function (App) {
-    class ProjectItem extends App.Component {
-        constructor(hostId, project) {
-            super('single-project', hostId, App.InsertLocation.end, project.id);
-            this.hostId = hostId;
-            this.project = project;
-            this.configure();
-            this.renderContent();
+    function validate(validatableInput) {
+        let isValid = { error: null };
+        if (validatableInput.required) {
+            if (validatableInput.value.toString().trim().length === 0)
+                return { error: `${validatableInput.inputName} is required.` };
         }
-        get personsMsg() {
-            const numberOfPeople = this.project.people;
-            const suffix = 'currently assigned.';
-            let personOrPeopleString = 'people';
-            if (this.project.people === 1)
-                personOrPeopleString = 'person';
-            return `${numberOfPeople} ${personOrPeopleString} ${suffix}`;
+        if (validatableInput.minLength != null &&
+            typeof validatableInput.value === 'string') {
+            if (validatableInput.value.trim().length < validatableInput.minLength)
+                return { error: `${validatableInput.value} is shorter than ${validatableInput.minLength} in ${validatableInput.inputName}!` };
         }
-        dragStartHandler(event) {
-            //the 'text/plain' is just a string id for setting and retrieving said data in the drop handler on the target
-            event.dataTransfer.setData('text/plain', this.project.id);
-            //Allows the cursor the have a different cursor (options are copy and others)
-            event.dataTransfer.effectAllowed = 'move';
+        if (validatableInput.maxLength != null &&
+            typeof validatableInput.value === 'string') {
+            if (validatableInput.value.trim().length > validatableInput.maxLength)
+                return { error: `${validatableInput.value} is longer than ${validatableInput.maxLength} in ${validatableInput.inputName}!` };
         }
-        dragEndHandler(_) {
+        if (validatableInput.min != null &&
+            typeof validatableInput.value === 'number') {
+            if (validatableInput.value < validatableInput.min)
+                return { error: `${validatableInput.value} is shorter than ${validatableInput.min} in ${validatableInput.inputName}!` };
         }
-        configure() {
-            this.element.addEventListener('dragstart', this.dragStartHandler);
-            this.element.addEventListener('dragend', this.dragEndHandler);
+        if (validatableInput.max != null &&
+            typeof validatableInput.value === 'number') {
+            if (validatableInput.value > validatableInput.max)
+                return { error: `${validatableInput.value} is longer than ${validatableInput.max} in ${validatableInput.inputName}!` };
         }
-        renderContent() {
-            this.element.querySelector('h2').textContent = this.project.title;
-            this.element.querySelector('h3').textContent = this.personsMsg;
-            this.element.querySelector('p').textContent = this.project.description;
+        return isValid;
+    }
+    App.validate = validate;
+})(App || (App = {}));
+var App;
+(function (App) {
+    function autoBind(target, methodName, descriptor) {
+        const originalMethod = descriptor.value;
+        const adjustedDescriptor = {
+            configurable: true,
+            get() {
+                const boundFn = originalMethod.bind(this);
+                return boundFn;
+            }
+        };
+        return adjustedDescriptor;
+    }
+    App.autoBind = autoBind;
+})(App || (App = {}));
+var App;
+(function (App) {
+    class Project {
+        constructor(title, description, people, status) {
+            this.title = title;
+            this.description = description;
+            this.people = people;
+            this.status = status;
+            this.id = Math.random().toString();
         }
     }
-    __decorate([
-        App.autoBind
-    ], ProjectItem.prototype, "dragStartHandler", null);
-    __decorate([
-        App.autoBind
-    ], ProjectItem.prototype, "dragEndHandler", null);
-    App.ProjectItem = ProjectItem;
+    App.Project = Project;
+    //Project Type
+    let ProjectStatus;
+    (function (ProjectStatus) {
+        ProjectStatus[ProjectStatus["Active"] = 0] = "Active";
+        ProjectStatus[ProjectStatus["Finished"] = 1] = "Finished";
+    })(ProjectStatus = App.ProjectStatus || (App.ProjectStatus = {}));
+    ;
+    let InsertLocation;
+    (function (InsertLocation) {
+        InsertLocation["start"] = "afterbegin";
+        InsertLocation["end"] = "beforeend";
+    })(InsertLocation = App.InsertLocation || (App.InsertLocation = {}));
+    ;
 })(App || (App = {}));
 /// <reference path='base-component.ts'/>
+/// <reference path="../util/validation.ts"/>
+/// <reference path="../decorators/autobind.ts"/>
+/// <reference path="../models/project-model.ts"/>
 var App;
 (function (App) {
     class ProjectInput extends App.Component {
@@ -327,18 +287,58 @@ var App;
     App.ProjectInput = ProjectInput;
 })(App || (App = {}));
 // three / is a special syntax for importing namespaces from separate files (this allows for putting things into separate files):
-/// <reference path="models/drag-and-drop.ts"/>
-/// <reference path="models/project-model.ts"/>
-/// <reference path="state/project-state.ts"/>
-/// <reference path="util/validation.ts"/>
-/// <reference path="decorators/autobind.ts"/>
 /// <reference path="components/project-list.ts"/>
-/// <reference path="components/project-item.ts"/>
 /// <reference path="components/project-input.ts"/>
-/// <reference path="components/base-component.ts"/>
 var App;
 (function (App) {
     new App.ProjectInput();
     new App.ProjectList('active');
     new App.ProjectList('finished');
+})(App || (App = {}));
+/// <reference path="base-component.ts"/>
+/// <reference path="../models/project-model.ts"/>
+/// <reference path="../decorators/autobind.ts"/>
+var App;
+(function (App) {
+    class ProjectItem extends App.Component {
+        constructor(hostId, project) {
+            super('single-project', hostId, App.InsertLocation.end, project.id);
+            this.hostId = hostId;
+            this.project = project;
+            this.configure();
+            this.renderContent();
+        }
+        get personsMsg() {
+            const numberOfPeople = this.project.people;
+            const suffix = 'currently assigned.';
+            let personOrPeopleString = 'people';
+            if (this.project.people === 1)
+                personOrPeopleString = 'person';
+            return `${numberOfPeople} ${personOrPeopleString} ${suffix}`;
+        }
+        dragStartHandler(event) {
+            //the 'text/plain' is just a string id for setting and retrieving said data in the drop handler on the target
+            event.dataTransfer.setData('text/plain', this.project.id);
+            //Allows the cursor the have a different cursor (options are copy and others)
+            event.dataTransfer.effectAllowed = 'move';
+        }
+        dragEndHandler(_) {
+        }
+        configure() {
+            this.element.addEventListener('dragstart', this.dragStartHandler);
+            this.element.addEventListener('dragend', this.dragEndHandler);
+        }
+        renderContent() {
+            this.element.querySelector('h2').textContent = this.project.title;
+            this.element.querySelector('h3').textContent = this.personsMsg;
+            this.element.querySelector('p').textContent = this.project.description;
+        }
+    }
+    __decorate([
+        App.autoBind
+    ], ProjectItem.prototype, "dragStartHandler", null);
+    __decorate([
+        App.autoBind
+    ], ProjectItem.prototype, "dragEndHandler", null);
+    App.ProjectItem = ProjectItem;
 })(App || (App = {}));

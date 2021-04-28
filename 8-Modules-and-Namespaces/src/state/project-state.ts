@@ -2,7 +2,7 @@ namespace App {
   //Creating a function type (defining what a function signature must be)
   type Listener<T> = (items: T[]) => void;
 
-  abstract class State <T> {
+  export abstract class State <T> {
     protected listeners: Listener<T>[] = [];
 
     addListener(listenerFn: Listener<T>) {

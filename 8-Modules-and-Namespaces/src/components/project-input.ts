@@ -1,4 +1,8 @@
 /// <reference path='base-component.ts'/>
+/// <reference path="../util/validation.ts"/>
+/// <reference path="../decorators/autobind.ts"/>
+/// <reference path="../models/project-model.ts"/>
+
 namespace App {
   export class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
     //Goal is to render form template and append it to the app 
