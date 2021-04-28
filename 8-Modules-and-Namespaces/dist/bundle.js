@@ -122,15 +122,8 @@ var App;
     }
     App.autoBind = autoBind;
 })(App || (App = {}));
-// three / is a special syntax for importing namespaces from separate files (this allows for putting things into separate files):
-/// <reference path="models/drag-and-drop.ts"/>
-/// <reference path="project-model.ts"/>
-/// <reference path="models/project-state.ts"/>
-/// <reference path="validation.ts"/>
-/// <reference path="decorators/autobind.ts"/>
 var App;
 (function (App) {
-    //component generic base class
     class Component {
         constructor(templateId, hostElementId, insertAtLocation, newElementId) {
             this.templateElement = document.getElementById(templateId);
@@ -145,48 +138,12 @@ var App;
             this.hostElement.insertAdjacentElement(insertAtLocation, this.element);
         }
     }
-    class ProjectItem extends Component {
-        constructor(hostId, project) {
-            super('single-project', hostId, App.InsertLocation.end, project.id);
-            this.hostId = hostId;
-            this.project = project;
-            this.configure();
-            this.renderContent();
-        }
-        get personsMsg() {
-            const numberOfPeople = this.project.people;
-            const suffix = 'currently assigned.';
-            let personOrPeopleString = 'people';
-            if (this.project.people === 1)
-                personOrPeopleString = 'person';
-            return `${numberOfPeople} ${personOrPeopleString} ${suffix}`;
-        }
-        dragStartHandler(event) {
-            //the 'text/plain' is just a string id for setting and retrieving said data in the drop handler on the target
-            event.dataTransfer.setData('text/plain', this.project.id);
-            //Allows the cursor the have a different cursor (options are copy and others)
-            event.dataTransfer.effectAllowed = 'move';
-        }
-        dragEndHandler(_) {
-        }
-        configure() {
-            this.element.addEventListener('dragstart', this.dragStartHandler);
-            this.element.addEventListener('dragend', this.dragEndHandler);
-        }
-        renderContent() {
-            this.element.querySelector('h2').textContent = this.project.title;
-            this.element.querySelector('h3').textContent = this.personsMsg;
-            this.element.querySelector('p').textContent = this.project.description;
-        }
-    }
-    __decorate([
-        App.autoBind
-    ], ProjectItem.prototype, "dragStartHandler", null);
-    __decorate([
-        App.autoBind
-    ], ProjectItem.prototype, "dragEndHandler", null);
-    //ProjectList Class
-    class ProjectList extends Component {
+    App.Component = Component;
+})(App || (App = {}));
+/// <reference path='base-component.ts'/>
+var App;
+(function (App) {
+    class ProjectList extends App.Component {
         constructor(type) {
             super('project-list', 'app', App.InsertLocation.end, `${type}-projects`);
             this.type = type;
@@ -234,12 +191,61 @@ var App;
             const listEl = document.getElementById(`${this.type}-projects-list`);
             listEl.innerHTML = '';
             for (const projectItem of this.assignedProjects) {
-                new ProjectItem(this.element.querySelector('ul').id, projectItem);
+                new App.ProjectItem(this.element.querySelector('ul').id, projectItem);
             }
         }
     }
-    //ProjectInput Class
-    class ProjectInput extends Component {
+    App.ProjectList = ProjectList;
+})(App || (App = {}));
+/// <reference path="base-component.ts"/>
+var App;
+(function (App) {
+    class ProjectItem extends App.Component {
+        constructor(hostId, project) {
+            super('single-project', hostId, App.InsertLocation.end, project.id);
+            this.hostId = hostId;
+            this.project = project;
+            this.configure();
+            this.renderContent();
+        }
+        get personsMsg() {
+            const numberOfPeople = this.project.people;
+            const suffix = 'currently assigned.';
+            let personOrPeopleString = 'people';
+            if (this.project.people === 1)
+                personOrPeopleString = 'person';
+            return `${numberOfPeople} ${personOrPeopleString} ${suffix}`;
+        }
+        dragStartHandler(event) {
+            //the 'text/plain' is just a string id for setting and retrieving said data in the drop handler on the target
+            event.dataTransfer.setData('text/plain', this.project.id);
+            //Allows the cursor the have a different cursor (options are copy and others)
+            event.dataTransfer.effectAllowed = 'move';
+        }
+        dragEndHandler(_) {
+        }
+        configure() {
+            this.element.addEventListener('dragstart', this.dragStartHandler);
+            this.element.addEventListener('dragend', this.dragEndHandler);
+        }
+        renderContent() {
+            this.element.querySelector('h2').textContent = this.project.title;
+            this.element.querySelector('h3').textContent = this.personsMsg;
+            this.element.querySelector('p').textContent = this.project.description;
+        }
+    }
+    __decorate([
+        App.autoBind
+    ], ProjectItem.prototype, "dragStartHandler", null);
+    __decorate([
+        App.autoBind
+    ], ProjectItem.prototype, "dragEndHandler", null);
+    App.ProjectItem = ProjectItem;
+})(App || (App = {}));
+/// <reference path='base-component.ts'/>
+var App;
+(function (App) {
+    class ProjectInput extends App.Component {
         constructor() {
             super('project-input', 'app', App.InsertLocation.start, 'user-input');
             this.titleInputElement = document.querySelector('#title');
@@ -318,7 +324,21 @@ var App;
     __decorate([
         App.autoBind
     ], ProjectInput.prototype, "submitHandler", null);
-    const projectInput = new ProjectInput();
-    const activeProjectList = new ProjectList('active');
-    const finishedProjectList = new ProjectList('finished');
+    App.ProjectInput = ProjectInput;
+})(App || (App = {}));
+// three / is a special syntax for importing namespaces from separate files (this allows for putting things into separate files):
+/// <reference path="models/drag-and-drop.ts"/>
+/// <reference path="models/project-model.ts"/>
+/// <reference path="state/project-state.ts"/>
+/// <reference path="util/validation.ts"/>
+/// <reference path="decorators/autobind.ts"/>
+/// <reference path="components/project-list.ts"/>
+/// <reference path="components/project-item.ts"/>
+/// <reference path="components/project-input.ts"/>
+/// <reference path="components/base-component.ts"/>
+var App;
+(function (App) {
+    new App.ProjectInput();
+    new App.ProjectList('active');
+    new App.ProjectList('finished');
 })(App || (App = {}));
