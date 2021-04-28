@@ -1,9 +1,11 @@
-/// <reference path='base-component.ts'/>
-/// <reference path="../util/validation.ts"/>
-/// <reference path="../decorators/autobind.ts"/>
-/// <reference path="../models/project-model.ts"/>
+import { InsertLocation } from '../models/project-model.js';
+import { autoBind } from '../decorators/autobind.js';
+import { Component } from './base-component.js';
+import { Validatable, validate } from '../util/validation.js';
+import { projectState } from '../state/project-state.js';
 
-namespace App {
+
+  
   export class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
     //Goal is to render form template and append it to the app 
     titleInputElement: HTMLInputElement;
@@ -99,4 +101,3 @@ namespace App {
       }
     }
   }
-}
